@@ -1,50 +1,52 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Editar Tarefa</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-        }
+  <meta charset="UTF-8">
+  <title>Editar Tarefa</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      padding: 40px;
+      text-align: center;
+    }
+    input {
+      width: 60%;
+      padding: 10px;
+      margin: 20px 0;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #121212;
+        color: white;
+      }
 
-        input[type="text"] {
-            padding: 10px;
-        }
+      input {
+        background-color: #333;
+        color: white;
+        border: 1px solid #555;
+      }
 
-        button {
-            padding: 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        a {
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
-        }
-    </style>
+      button {
+        background-color: #0056b3;
+      }
+    }
+  </style>
 </head>
 <body>
-    <h1>✏️ Editar Tarefa</h1>
-    <form action="/editar/{{ index }}" method="POST">
-        <input type="text" name="tarefa" value="{{ tarefa.texto }}" required>
-        <button type="submit">Salvar</button>
-    </form>
-    <a href="/">← Voltar</a>
+  <h2>✏️ Editar Tarefa</h2>
+  <form action="/editar/{{ index }}" method="POST">
+    <input type="text" name="tarefa" value="{{ tarefa.texto }}" required>
+    <br>
+    <button type="submit">Salvar</button>
+  </form>
 </body>
 </html>
