@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Minha Lista de Tarefas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 8px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        a {
+            text-decoration: none;
+            margin-left: 10px;
+            font-size: 16px;
+        }
+
+        i.fa-star {
+            color: gold;
+        }
+    </style>
+</head>
+<body>
+    <h1>📋 Lista de Tarefas Lê e Eder</h1>
+
+    <form action="/adicionar" method="POST">
+        <input type="text" name="tarefa" placeholder="Nova tarefa" required>
+        <button type="submit"><i class="fa-solid fa-plus"></i> Adicionar</button>
+    </form>
+
+    <ul>
+        {% for tarefa in tarefas %}
+            <li>
+                <span style="{% if tarefa.feito %}text-decoration: line-through; color:gray;{% endif %}">
+                    {{ tarefa.texto }}
+                </span>
+                <div>
+                    <a href="/concluir/{{ loop.index0 }}"><i class="fa-solid fa-check" title="Concluir" style="color:green;"></i></a>
+                    <a href="/editar/{{ loop.index0 }}"><i class="fa-solid fa-pen" title="Editar" style="color:blue;"></i></a>
+                    <a href="/favoritar/{{ loop.index0 }}">
+                        <i class="{% if tarefa.favorito %}fa-solid{% else %}fa-regular{% endif %} fa-star" title="Favoritar"></i>
+                    </a>
+                    <a href="/remover/{{ loop.index0 }}"><i class="fa-solid fa-trash" title="Remover" style="color:red;"></i></a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
