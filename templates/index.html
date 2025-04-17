@@ -9,6 +9,10 @@
   <meta name="theme-color" content="#007BFF">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -49,17 +53,28 @@
 
     form {
       display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    label {
+      font-size: 15px;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .form-group {
+      display: flex;
       flex-direction: column;
     }
 
-    input[type="text"] {
-      padding: 14px;
-      font-size: 18px;
+    input[type="text"],
+    input[type="date"] {
+      padding: 12px;
+      font-size: 16px;
       border: 1px solid #ccc;
       border-radius: 5px;
-      width: 100%;
     }
 
     button {
@@ -102,21 +117,25 @@
     @media (min-width: 600px) {
       form {
         flex-direction: row;
+        align-items: flex-end;
+        flex-wrap: wrap;
       }
 
-      input[type="text"] {
+      .form-group {
         flex: 1;
+        margin-right: 10px;
       }
 
       button {
         width: auto;
+        margin-top: 0;
       }
     }
 
     @media (prefers-color-scheme: dark) {
       body {
         background-color: #121212;
-        color: #fff;
+        color: white;
       }
 
       .container {
@@ -135,13 +154,17 @@
       li {
         border-bottom: 1px solid #444;
       }
+
+      label {
+        color: #ccc;
+      }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <h1><i class="fa-solid fa-list-check"></i> Tarefas Eder e Lê</h1>
+  <h1><i class="fa-solid fa-list-check"></i> Tarefas Eder, Lê e Lilly</h1>
   <div>
     <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
   </div>
@@ -149,14 +172,38 @@
 
 <div class="container">
   <form action="/adicionar" method="POST">
-    <input type="text" name="tarefa" placeholder="Digite uma nova tarefa..." required>
+    <div class="form-group">
+      <label for="tarefa">Descrição da Tarefa</label>
+      <input type="text" name="tarefa" id="tarefa" placeholder="Digite uma nova tarefa..." required>
+    </div>
+    <div class="form-group">
+      <label for="data_conclusao">Data de conclusão prevista</label>
+      <input type="date" name="data_conclusao" id="data_conclusao">
+    </div>
     <button type="submit">Adicionar</button>
   </form>
 
   <ul>
     {% for tarefa in tarefas %}
     <li>
-      <span class="{% if tarefa.feito %}done{% endif %}">{{ tarefa.texto }}</span>
+      <div>
+        <span class="{% if tarefa.feito %}done{% endif %}">{{ tarefa.texto }}</span><br>
+        <small>
+          Criada em: {{ tarefa.data_criacao }}<br>
+          {% if tarefa.data_conclusao %}
+            {% set dt = tarefa.data_conclusao %}
+            {% set dt_venc = dt.split('/') %}
+            {% set vencida = dt_venc[2]|int < hoje.year or
+                             (dt_venc[2]|int == hoje.year and dt_venc[1]|int < hoje.month) or
+                             (dt_venc[2]|int == hoje.year and dt_venc[1]|int == hoje.month and dt_venc[0]|int < hoje.day) %}
+            {% if vencida and not tarefa.feito %}
+              <span style="color: red;">Vencida: {{ tarefa.data_conclusao }}</span>
+            {% else %}
+              Data de conclusão prevista: {{ tarefa.data_conclusao }}
+            {% endif %}
+          {% endif %}
+        </small>
+      </div>
       <div class="actions">
         <a href="/concluir/{{ loop.index0 }}" title="Concluir"><i class="fa-solid fa-check" style="color:green;"></i></a>
         <a href="/editar/{{ loop.index0 }}" title="Editar"><i class="fa-solid fa-pen" style="color:blue;"></i></a>
