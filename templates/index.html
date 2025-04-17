@@ -1,91 +1,124 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Minha Lista de Tarefas</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-        }
+  <meta charset="UTF-8">
+  <title>Lista de Tarefas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
 
-        h1 {
-            text-align: center;
-        }
+    header {
+      background-color: #007BFF;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        form {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 10px;
-        }
+    header h1 {
+      margin: 0;
+      font-size: 20px;
+    }
 
-        input[type="text"] {
-            flex: 1;
-            padding: 8px;
-        }
+    header a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      font-weight: bold;
+    }
 
-        button {
-            padding: 8px 16px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+    .container {
+      max-width: 700px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
 
-        ul {
-            list-style: none;
-            padding-left: 0;
-        }
+    form {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
 
-        li {
-            padding: 10px;
-            border-bottom: 1px solid #ccc;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+    }
 
-        a {
-            text-decoration: none;
-            margin-left: 10px;
-            font-size: 16px;
-        }
+    button {
+      padding: 10px 16px;
+      background-color: #28a745;
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+    }
 
-        i.fa-star {
-            color: gold;
-        }
-    </style>
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #ddd;
+      align-items: center;
+    }
+
+    .actions a {
+      margin-left: 10px;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    .done {
+      text-decoration: line-through;
+      color: gray;
+    }
+  </style>
 </head>
 <body>
-    <h1>📋 Lista de Tarefas Lê e Eder</h1>
 
-    <form action="/adicionar" method="POST">
-        <input type="text" name="tarefa" placeholder="Nova tarefa" required>
-        <button type="submit"><i class="fa-solid fa-plus"></i> Adicionar</button>
-    </form>
+<header>
+  <h1><i class="fa-solid fa-list-check"></i> Tarefas Eder e Lê</h1>
+  <div>
+    <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
+  </div>
+</header>
 
-    <ul>
-        {% for tarefa in tarefas %}
-            <li>
-                <span style="{% if tarefa.feito %}text-decoration: line-through; color:gray;{% endif %}">
-                    {{ tarefa.texto }}
-                </span>
-                <div>
-                    <a href="/concluir/{{ loop.index0 }}"><i class="fa-solid fa-check" title="Concluir" style="color:green;"></i></a>
-                    <a href="/editar/{{ loop.index0 }}"><i class="fa-solid fa-pen" title="Editar" style="color:blue;"></i></a>
-                    <a href="/favoritar/{{ loop.index0 }}">
-                        <i class="{% if tarefa.favorito %}fa-solid{% else %}fa-regular{% endif %} fa-star" title="Favoritar"></i>
-                    </a>
-                    <a href="/remover/{{ loop.index0 }}"><i class="fa-solid fa-trash" title="Remover" style="color:red;"></i></a>
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
+<div class="container">
+  <form action="/adicionar" method="POST">
+    <input type="text" name="tarefa" placeholder="Digite uma nova tarefa..." required>
+    <button type="submit">Adicionar</button>
+  </form>
+
+  <ul>
+    {% for tarefa in tarefas %}
+    <li>
+      <span class="{% if tarefa.feito %}done{% endif %}">{{ tarefa.texto }}</span>
+      <div class="actions">
+        <a href="/concluir/{{ loop.index0 }}" title="Concluir"><i class="fa-solid fa-check" style="color:green;"></i></a>
+        <a href="/editar/{{ loop.index0 }}" title="Editar"><i class="fa-solid fa-pen" style="color:blue;"></i></a>
+        <a href="/favoritar/{{ loop.index0 }}" title="Favoritar">
+          <i class="{% if tarefa.favorito %}fa-solid{% else %}fa-regular{% endif %} fa-star" style="color:gold;"></i>
+        </a>
+        <a href="/remover/{{ loop.index0 }}" title="Remover"><i class="fa-solid fa-trash" style="color:red;"></i></a>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
 </body>
 </html>
