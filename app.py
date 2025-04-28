@@ -57,7 +57,7 @@ def login():
     if request.method == "POST":
         usuario = request.form.get("usuario")
         senha = request.form.get("senha")
-        if usuario == "admin" and senha == "1234":
+        if usuario == "Lilly" and senha == "Leticia021021.":
             session.permanent = True
             session["logado"] = True
             return redirect("/")
