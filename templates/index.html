@@ -1,113 +1,51 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Lista de Tarefas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="/static/manifest.json">
-  <link rel="icon" type="image/png" href="/static/icon.png">
-  <meta name="theme-color" content="#007BFF">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
-    header {
-      background-color: #007BFF; color: white; padding: 15px 20px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    header h1 { margin: 0; font-size: 20px; }
-    header a { color: white; text-decoration: none; margin-left: 15px; font-weight: bold; font-size: 16px; }
-    .container {
-      max-width: 700px; margin: 30px auto; background: white;
-      padding: 25px 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px; }
-    label { font-size: 15px; margin-bottom: 5px; color: #333; }
-    .form-group { display: flex; flex-direction: column; }
-    input[type="text"], input[type="date"] {
-      padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px;
-    }
-    button {
-      padding: 14px; font-size: 18px; background-color: #28a745; border: none;
-      color: white; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%;
-    }
-    ul { list-style: none; padding: 0; }
-    li {
-      display: flex; justify-content: space-between; padding: 12px 0;
-      border-bottom: 1px solid #ddd; align-items: center; flex-wrap: wrap;
-    }
-    .actions a { margin-left: 10px; text-decoration: none; font-size: 18px; }
-    .done { text-decoration: line-through; color: gray; }
-    @media (min-width: 600px) {
-      form { flex-direction: row; align-items: flex-end; flex-wrap: wrap; }
-      .form-group { flex: 1; margin-right: 10px; }
-      button { width: auto; margin-top: 0; }
-    }
-    @media (prefers-color-scheme: dark) {
-      body { background-color: #121212; color: white; }
-      .container { background-color: #1e1e1e; }
-      input, button { background-color: #333; color: white; }
-      header { background-color: #222; }
-      li { border-bottom: 1px solid #444; }
-      label { color: #ccc; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Minhas Tarefas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    <header class="topo">
+        <h1>Família Eder, Lê e Lilly 💙</h1>
+    </header>
 
-<header>
-  <h1><i class="fa-solid fa-list-check"></i> Tarefas Eder, Lê e Lilly</h1>
-  <div>
-    <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
-  </div>
-</header>
+    <div class="container">
+        <h2>Olá, {{ usuario }}!</h2>
 
-<div class="container">
-  <form action="/adicionar" method="POST">
-    <div class="form-group">
-      <label for="tarefa">Descrição da Tarefa</label>
-      <input type="text" name="tarefa" id="tarefa" placeholder="Digite uma nova tarefa..." required>
+        <form method="post" action="/adicionar" class="nova-tarefa-form">
+            <input type="text" name="tarefa" placeholder="Digite uma nova tarefa" required>
+            <input type="date" name="data_conclusao">
+            <button type="submit">Adicionar</button>
+        </form>
+
+        <ul class="lista-tarefas">
+            {% for tarefa in tarefas %}
+            <li class="{% if tarefa[2] %}concluida{% endif %}">
+                <span class="texto-tarefa">
+                    {{ tarefa[1] }}
+                    {% if tarefa[5] %}
+                        <br><small>📅 Prevista: {{ tarefa[5] }}</small>
+                    {% endif %}
+                </span>
+                <div class="botoes">
+                    <a href="/concluir/{{ tarefa[0] }}" title="Concluir">
+                    {% if tarefa[2] %}✅{% else %}✔️{% endif %}
+                    </a>
+                    <a href="/favoritar/{{ tarefa[0] }}" title="Favoritar">
+                        {% if tarefa[3] %}⭐{% else %}☆{% endif %}
+                    </a>
+                    <a href="/editar/{{ tarefa[0] }}" title="Editar">✏️</a>
+                    <a href="/remover/{{ tarefa[0] }}" title="Remover">🗑️</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <div class="rodape">
+            <a href="/logout">Sair</a>
+        </div>
     </div>
-    <div class="form-group">
-      <label for="data_conclusao">Data de conclusão prevista</label>
-      <input type="date" name="data_conclusao" id="data_conclusao">
-    </div>
-    <button type="submit">Adicionar</button>
-  </form>
-
-  <ul>
-    {% for tarefa in tarefas %}
-    <li>
-      <div>
-        <span class="{% if tarefa.feito %}done{% endif %}">{{ tarefa.texto }}</span><br>
-        <small>
-          Criada em: {{ tarefa.data_criacao }}<br>
-          {% if tarefa.data_conclusao %}
-            {% set dt = tarefa.data_conclusao %}
-            {% set dt_venc = dt.split('/') %}
-            {% set vencida = dt_venc[2]|int < hoje.year or
-                             (dt_venc[2]|int == hoje.year and dt_venc[1]|int < hoje.month) or
-                             (dt_venc[2]|int == hoje.year and dt_venc[1]|int == hoje.month and dt_venc[0]|int < hoje.day) %}
-            {% if vencida and not tarefa.feito %}
-              <span style="color: red;">Vencida: {{ tarefa.data_conclusao }}</span>
-            {% else %}
-              Data de conclusão prevista: {{ tarefa.data_conclusao }}
-            {% endif %}
-          {% endif %}
-        </small>
-      </div>
-      <div class="actions">
-        <a href="/concluir/{{ tarefa.id }}" title="Concluir"><i class="fa-solid fa-check" style="color:green;"></i></a>
-        <a href="/editar/{{ tarefa.id }}" title="Editar"><i class="fa-solid fa-pen" style="color:blue;"></i></a>
-        <a href="/favoritar/{{ tarefa.id }}" title="Favoritar">
-          <i class="{% if tarefa.favorito %}fa-solid{% else %}fa-regular{% endif %} fa-star" style="color:gold;"></i>
-        </a>
-        <a href="/remover/{{ tarefa.id }}" title="Remover"><i class="fa-solid fa-trash" style="color:red;"></i></a>
-      </div>
-    </li>
-    {% endfor %}
-  </ul>
-</div>
-
 </body>
 </html>

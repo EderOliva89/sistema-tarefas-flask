@@ -1,0 +1,125 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f5f7fa;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 500px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    border-radius: 8px;
+}
+
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #dfe6ed;
+}
+
+.login-container {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 350px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+form input[type="text"],
+form input[type="password"],
+form input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #3498db;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #2980b9;
+}
+
+.lista-tarefas {
+    list-style: none;
+    padding: 0;
+}
+
+.lista-tarefas li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ecf0f1;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.lista-tarefas li.concluida {
+    text-decoration: line-through;
+    color: gray;
+}
+
+.botoes a {
+    margin-left: 5px;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.texto-tarefa {
+    flex: 1;
+}
+
+.mensagens {
+    margin-top: 15px;
+    color: red;
+    text-align: center;
+}
+
+.rodape {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.link-cadastro {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.topo {
+    background-color: #3498db;
+    color: white;
+    padding: 20px 10px;
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+    border-bottom: 4px solid #2980b9;
+}
+
+.topo h1 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.titulo-login {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #2c3e50;
+    text-align: center;
+}
+

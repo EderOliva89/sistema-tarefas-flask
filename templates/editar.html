@@ -1,80 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Editar Tarefa</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
-      padding: 40px 20px;
-      text-align: center;
-    }
-
-    h2 {
-      margin-bottom: 20px;
-    }
-
-    input, button {
-      padding: 12px;
-      font-size: 16px;
-      margin: 10px 0;
-      width: 90%;
-      max-width: 400px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-
-    button {
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    small {
-      font-size: 14px;
-      color: #555;
-      display: block;
-      margin-top: -5px;
-      margin-bottom: 15px;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #121212;
-        color: white;
-      }
-
-      input {
-        background-color: #333;
-        color: white;
-        border: 1px solid #555;
-      }
-
-      button {
-        background-color: #0056b3;
-      }
-
-      small {
-        color: #ccc;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>Editar Tarefa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body class="login-page">
+    <div class="login-container">
+        <h1 class="titulo-login">Família Eder, Lê e Lilly 💙</h1>
+        <h2>✏️ Editar Tarefa</h2>
 
-  <h2>✏️ Editar Tarefa</h2>
-  <form action="/editar/{{ index }}" method="POST">
-    <input type="text" name="tarefa" value="{{ tarefa.texto }}" required><br>
-    
-    <input type="date" name="data_conclusao"
-           value="{% if tarefa.data_conclusao %}{{ tarefa.data_conclusao.split('/')[-1] }}-{{ tarefa.data_conclusao.split('/')[1] }}-{{ tarefa.data_conclusao.split('/')[0] }}{% endif %}">
-    <small>Data de conclusão prevista (opcional)</small>
+        <form method="post">
+            <input type="text" name="tarefa" value="{{ tarefa.texto }}" required>
+            <input type="date" name="data_conclusao" 
+                {% if tarefa.data_conclusao %}
+                    value="{{ tarefa.data_conclusao|replace('/', '-')|reverse_date }}"
+                {% endif %}>
+            <button type="submit">Salvar Alterações</button>
+        </form>
 
-    <button type="submit">Salvar</button>
-  </form>
-
+        <p class="link-cadastro"><a href="/">← Voltar para as tarefas</a></p>
+    </div>
 </body>
 </html>
