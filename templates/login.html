@@ -2,31 +2,21 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - Tarefas Família</title>
     <link rel="stylesheet" href="/static/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo192.png') }}" sizes="192x192">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='logo192.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 </head>
-<body class="login-page">
-    <div class="login-container">
-        <h1 class="titulo-login">Tarefas Família Eder, Lê e Lilly 💙</h1>
-        <h2>🔐 Login</h2>
-        <form method="post">
-            <input type="text" name="usuario" placeholder="Usuário" required>
-            <input type="password" name="senha" placeholder="Senha" required>
-            <button type="submit">Entrar</button>
-        </form>
-
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="mensagens">
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
-        {% endwith %}
-
-        <p class="link-cadastro">Ainda não tem uma conta? <a href="/cadastro">Cadastrar-se</a></p>
-    </div>
+<body>
+<div class="login-container">
+    <h1>🔐 Tarefas Família Eder, Lê e Lilly</h1>
+    <form method="POST" class="form-login">
+        <input type="text" name="usuario" placeholder="Usuário" required>
+        <input type="password" name="senha" placeholder="Senha" required>
+        <button type="submit">Entrar</button>
+    </form>
+</div>
 </body>
 </html>

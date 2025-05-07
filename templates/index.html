@@ -3,49 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <title>Minhas Tarefas</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo192.png') }}" sizes="192x192">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='logo192.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 </head>
 <body>
-    <header class="topo">
-        <h1>Família Eder, Lê e Lilly 💙</h1>
+<div class="container">
+    <header>
+        <h1><i class="fas fa-list-check"></i> Família Eder, Lê e Lilly</h1>
+        <p>Olá, {{ nome }}! <a href="/logout">Sair</a></p>
     </header>
 
-    <div class="container">
-        <h2>Olá, {{ usuario }}!</h2>
+    <form action="/adicionar" method="POST" class="form-tarefa">
+        <input type="text" name="tarefa" placeholder="Descrição da tarefa" required>
+        <input type="date" name="data_conclusao" title="Data de conclusão prevista">
+        <button type="submit"><i class="fas fa-plus"></i> Adicionar</button>
+    </form>
 
-        <form method="post" action="/adicionar" class="nova-tarefa-form">
-            <input type="text" name="tarefa" placeholder="Digite uma nova tarefa" required>
-            <input type="date" name="data_conclusao">
-            <button type="submit">Adicionar</button>
-        </form>
-
-        <ul class="lista-tarefas">
-            {% for tarefa in tarefas %}
-            <li class="{% if tarefa[2] %}concluida{% endif %}">
-                <span class="texto-tarefa">
-                    {{ tarefa[1] }}
-                    {% if tarefa[5] %}
-                        <br><small>📅 Prevista: {{ tarefa[5] }}</small>
-                    {% endif %}
-                </span>
-                <div class="botoes">
-                    <a href="/concluir/{{ tarefa[0] }}" title="Concluir">
-                    {% if tarefa[2] %}✅{% else %}✔️{% endif %}
-                    </a>
-                    <a href="/favoritar/{{ tarefa[0] }}" title="Favoritar">
-                        {% if tarefa[3] %}⭐{% else %}☆{% endif %}
-                    </a>
-                    <a href="/editar/{{ tarefa[0] }}" title="Editar">✏️</a>
-                    <a href="/remover/{{ tarefa[0] }}" title="Remover">🗑️</a>
-                </div>
-            </li>
-            {% endfor %}
-        </ul>
-
-        <div class="rodape">
-            <a href="/logout">Sair</a>
-        </div>
-    </div>
+    <ul class="lista-tarefas">
+        {% for t in tarefas %}
+        <li class="{{ 'feito' if t['feito'] }}">
+            <span>{{ t['texto'] }}</span>
+            {% if t['data_conclusao'] %}
+            <small>🗓 Prevista: {{ t['data_conclusao'] }}</small>
+            {% endif %}
+            <div class="acoes">
+                <a href="/concluir/{{ t['id'] }}" title="Concluir">
+                    <i class="fas fa-check check-icon {% if t['feito'] %}ativo{% endif %}"></i>
+                </a>
+                <a href="/favoritar/{{ t['id'] }}" title="Favoritar">
+                    <i class="fas fa-star star-icon {% if t['favorito'] %}favorita{% endif %}"></i>
+                </a>
+                <a href="/editar/{{ t['id'] }}" title="Editar">
+                    <i class="fas fa-pen edit-icon"></i>
+                </a>
+                <a href="/remover/{{ t['id'] }}" title="Apagar">
+                    <i class="fas fa-trash delete-icon"></i>
+                </a>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
 </body>
 </html>

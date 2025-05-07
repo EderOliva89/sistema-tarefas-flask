@@ -3,24 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Editar Tarefa</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='logo192.png') }}" sizes="192x192">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='logo192.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
 </head>
-<body class="login-page">
-    <div class="login-container">
-        <h1 class="titulo-login">Família Eder, Lê e Lilly 💙</h1>
-        <h2>✏️ Editar Tarefa</h2>
+<body>
+<div class="container">
+    <header>
+        <h2><i class="fas fa-pen"></i> Editar Tarefa</h2>
+    </header>
 
-        <form method="post">
-            <input type="text" name="tarefa" value="{{ tarefa.texto }}" required>
-            <input type="date" name="data_conclusao" 
-                {% if tarefa.data_conclusao %}
-                    value="{{ tarefa.data_conclusao|replace('/', '-')|reverse_date }}"
-                {% endif %}>
-            <button type="submit">Salvar Alterações</button>
-        </form>
+    <form action="/editar/{{ tarefa.id }}" method="POST" class="form-tarefa">
+        <input type="text" name="tarefa" value="{{ tarefa.texto }}" required>
 
-        <p class="link-cadastro"><a href="/">← Voltar para as tarefas</a></p>
-    </div>
+        <input type="date" name="data_conclusao"
+               value="{% if tarefa.data_conclusao %}
+                        {{ tarefa.data_conclusao.split('/')[2] }}-{{ tarefa.data_conclusao.split('/')[1] }}-{{ tarefa.data_conclusao.split('/')[0] }}
+                      {% endif %}">
+        <button type="submit"><i class="fas fa-save"></i> Salvar</button>
+    </form>
+
+    <a href="/" class="btn-voltar"><i class="fas fa-arrow-left"></i> Voltar</a>
+</div>
 </body>
 </html>

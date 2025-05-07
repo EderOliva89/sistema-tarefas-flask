@@ -1,125 +1,213 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f5f7fa;
+    background: #f2f2f2;
     margin: 0;
     padding: 0;
 }
 
 .container {
-    max-width: 500px;
-    margin: 30px auto;
-    background: #fff;
+    max-width: 600px;
+    margin: auto;
+    background: white;
     padding: 20px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    border-radius: 8px;
-}
-
-.login-page {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #dfe6ed;
-}
-
-.login-container {
-    background: #fff;
-    padding: 30px;
+    margin-top: 30px;
     border-radius: 10px;
-    width: 90%;
-    max-width: 350px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-form input[type="text"],
-form input[type="password"],
-form input[type="date"] {
-    width: 100%;
+header {
+    text-align: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+header p {
+    margin: 5px 0 15px;
+}
+
+a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.form-tarefa {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-tarefa input[type="text"],
+.form-tarefa input[type="date"] {
     padding: 10px;
-    margin: 10px 0;
+    font-size: 16px;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 5px;
 }
 
-form button {
-    width: 100%;
+.form-tarefa button {
     padding: 10px;
-    background-color: #3498db;
+    font-size: 16px;
+    background: #28a745;
     color: white;
-    font-weight: bold;
     border: none;
-    border-radius: 6px;
+    border-radius: 5px;
     cursor: pointer;
+    transition: background 0.3s ease;
 }
 
-form button:hover {
-    background-color: #2980b9;
+.form-tarefa button:hover {
+    background: #218838;
 }
 
 .lista-tarefas {
     list-style: none;
     padding: 0;
+    margin-top: 20px;
 }
 
 .lista-tarefas li {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #ecf0f1;
-    margin-bottom: 10px;
+    background: #f9f9f9;
     padding: 10px;
-    border-radius: 6px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    flex-wrap: wrap;
 }
 
-.lista-tarefas li.concluida {
+.lista-tarefas li.feito span {
     text-decoration: line-through;
-    color: gray;
+    color: #888;
 }
 
-.botoes a {
-    margin-left: 5px;
-    text-decoration: none;
+.lista-tarefas li small {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.lista-tarefas .acoes {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.acoes i {
     font-size: 18px;
+    transition: 0.2s ease;
+    cursor: pointer;
 }
 
-.texto-tarefa {
-    flex: 1;
+/* Ícones com cores distintas */
+.check-icon {
+    color: #28a745;
 }
 
-.mensagens {
-    margin-top: 15px;
-    color: red;
+.star-icon {
+    color: transparent;
+    -webkit-text-stroke: 1.5px #ffc107;
+    transition: 0.2s ease;
+}
+
+.star-icon.favorita {
+    color: #ffc107;
+    -webkit-text-stroke: 0;
+}
+
+.edit-icon {
+    color: #007bff;
+}
+
+.delete-icon {
+    color: #dc3545;
+}
+
+.acoes a:hover i {
+    transform: scale(1.1);
+}
+
+.btn-voltar {
+    display: inline-block;
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn-voltar:hover {
+    text-decoration: underline;
+}
+
+/* Tela de login */
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.15);
     text-align: center;
 }
 
-.rodape {
-    text-align: center;
+.login-container h2 {
+    margin-bottom: 10px;
+}
+
+.form-login {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
     margin-top: 20px;
 }
 
-.link-cadastro {
-    margin-top: 10px;
-    text-align: center;
+.form-login input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
-.topo {
-    background-color: #3498db;
+.form-login button {
+    padding: 10px;
+    font-size: 16px;
+    background: #007bff;
     color: white;
-    padding: 20px 10px;
-    text-align: center;
-    font-family: 'Segoe UI', sans-serif;
-    border-bottom: 4px solid #2980b9;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
-.topo h1 {
-    margin: 0;
-    font-size: 22px;
+.form-login button:hover {
+    background: #0056b3;
 }
 
-.titulo-login {
-    font-size: 20px;
-    margin-bottom: 15px;
-    color: #2c3e50;
-    text-align: center;
-}
+/* Responsivo */
+@media (max-width: 600px) {
+    .container {
+        padding: 15px;
+    }
 
+    .lista-tarefas li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .acoes {
+        margin-top: 8px;
+    }
+
+    .form-tarefa {
+        gap: 8px;
+    }
+
+    .form-tarefa input,
+    .form-tarefa button {
+        font-size: 14px;
+    }
+}
