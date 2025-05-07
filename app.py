@@ -8,15 +8,17 @@ app.secret_key = 'super_secret_key'
 app.permanent_session_lifetime = timedelta(days=7)
 
 def conectar():
+    database_url = os.environ.get("DATABASE_URL")
+    if database_url:
+        return psycopg2.connect(database_url, sslmode="require")
     return psycopg2.connect(
-        dbname='tarefas_local',
-        user='postgres',
-        password='admin',
-        host='localhost',
-        port='5432',
-        options='-c client_encoding=UTF8'
+        dbname="tarefas_local",
+        user="postgres",
+        password="admin123",
+        host="localhost",
+        port="5432",
+        options="-c client_encoding=UTF8"
     )
-
 def buscar_tarefas():
     conn = conectar()
     cursor = conn.cursor()
