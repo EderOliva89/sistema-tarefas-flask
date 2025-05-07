@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, session
 from datetime import datetime, timedelta
+import os
 import psycopg2
 import bcrypt
 
@@ -8,37 +9,86 @@ app.secret_key = 'super_secret_key'
 app.permanent_session_lifetime = timedelta(days=7)
 
 def conectar():
-    database_url = os.environ.get("DATABASE_URL")
+    database_url = os.environ.get('DATABASE_URL')
     if database_url:
-        return psycopg2.connect(database_url, sslmode="require")
-    return psycopg2.connect(
-        dbname="tarefas_local",
-        user="postgres",
-        password="admin123",
-        host="localhost",
-        port="5432",
-        options="-c client_encoding=UTF8"
-    )
+        return psycopg2.connect(f'{database_url}?sslmode=require')
+    dsn = "dbname=tarefas_local user=postgres password=admin host=localhost port=5432"
+    return psycopg2.connect(dsn)
+
+def criar_tabelas():
+    conn = conectar()
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id SERIAL PRIMARY KEY,
+            nome TEXT,
+            username TEXT UNIQUE,
+            senha TEXT
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS tarefas (
+            id SERIAL PRIMARY KEY,
+            texto TEXT NOT NULL,
+            feito BOOLEAN DEFAULT FALSE,
+            favorito BOOLEAN DEFAULT FALSE,
+            data_criacao TEXT,
+            data_conclusao TEXT
+        );
+    """)
+    conn.commit()
+    conn.close()
+
+# Cria as tabelas antes de qualquer requisição
+criar_tabelas()
+
 def buscar_tarefas():
     conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute(
+    cur = conn.cursor()
+    cur.execute(
         'SELECT id, texto, feito, data_criacao, data_conclusao, favorito '
         'FROM tarefas ORDER BY id DESC'
     )
-    rows = cursor.fetchall()
+    rows = cur.fetchall()
     conn.close()
     return [
         {
-            'id': r[0],
-            'texto': r[1],
-            'feito': r[2],
+            'id':           r[0],
+            'texto':        r[1],
+            'feito':        r[2],
             'data_criacao': r[3],
             'data_conclusao': r[4],
-            'favorito': r[5]
+            'favorito':     r[5]
         }
         for r in rows
     ]
+
+@app.route('/login', methods=['GET','POST'])
+def login():
+    erro = None
+    if request.method == 'POST':
+        usuario = request.form['usuario']
+        senha    = request.form['senha']
+        conn = conectar()
+        cur  = conn.cursor()
+        cur.execute(
+            'SELECT id, nome, senha FROM usuarios WHERE username = %s',
+            (usuario,)
+        )
+        row = cur.fetchone()
+        conn.close()
+        if row and bcrypt.checkpw(senha.encode(), row[2].encode()):
+            session['logado'] = True
+            session['usuario_id'] = row[0]
+            session['nome'] = row[1]
+            return redirect('/')
+        erro = 'Usuário ou senha inválidos'
+    return render_template('login.html', erro=erro)
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('/login')
 
 @app.route('/')
 def index():
@@ -47,51 +97,21 @@ def index():
     tarefas = buscar_tarefas()
     return render_template('index.html', tarefas=tarefas, nome=session.get('nome'))
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        usuario = request.form['usuario']
-        senha = request.form['senha']
-
-        conn = conectar()
-        cursor = conn.cursor()
-        cursor.execute(
-            'SELECT id, nome, senha FROM usuarios WHERE username = %s',
-            (usuario,)
-        )
-        result = cursor.fetchone()
-        conn.close()
-
-        if result and bcrypt.checkpw(senha.encode(), result[2].encode()):
-            session['logado'] = True
-            session['usuario_id'] = result[0]
-            session['nome'] = result[1]
-            return redirect('/')
-        return 'Usuário ou senha inválidos'
-
-    return render_template('login.html')
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect('/login')
-
 @app.route('/adicionar', methods=['POST'])
 def adicionar():
     if not session.get('logado'):
         return redirect('/login')
-    texto = request.form['tarefa']
-    data_conc = request.form.get('data_conclusao')
+    texto  = request.form['tarefa']
+    data_c = request.form.get('data_conclusao')
     data_fmt = ''
-    if data_conc:
+    if data_c:
         try:
-            data_fmt = datetime.strptime(data_conc, '%Y-%m-%d').strftime('%d/%m/%Y')
+            data_fmt = datetime.strptime(data_c, '%Y-%m-%d').strftime('%d/%m/%Y')
         except ValueError:
             pass
-
     conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute(
+    cur  = conn.cursor()
+    cur.execute(
         'INSERT INTO tarefas (texto, feito, data_criacao, data_conclusao, favorito) '
         'VALUES (%s, FALSE, %s, %s, FALSE)',
         (texto, datetime.now().strftime('%d/%m/%Y'), data_fmt)
@@ -103,8 +123,8 @@ def adicionar():
 @app.route('/concluir/<int:id>')
 def concluir(id):
     conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute('UPDATE tarefas SET feito = NOT feito WHERE id = %s', (id,))
+    cur  = conn.cursor()
+    cur.execute('UPDATE tarefas SET feito = NOT feito WHERE id = %s', (id,))
     conn.commit()
     conn.close()
     return redirect('/')
@@ -112,8 +132,8 @@ def concluir(id):
 @app.route('/favoritar/<int:id>')
 def favoritar(id):
     conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute('UPDATE tarefas SET favorito = NOT favorito WHERE id = %s', (id,))
+    cur  = conn.cursor()
+    cur.execute('UPDATE tarefas SET favorito = NOT favorito WHERE id = %s', (id,))
     conn.commit()
     conn.close()
     return redirect('/')
@@ -121,57 +141,54 @@ def favoritar(id):
 @app.route('/remover/<int:id>')
 def remover(id):
     conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM tarefas WHERE id = %s', (id,))
+    cur  = conn.cursor()
+    cur.execute('DELETE FROM tarefas WHERE id = %s', (id,))
     conn.commit()
     conn.close()
     return redirect('/')
 
-@app.route('/editar/<int:id>', methods=['GET', 'POST'])
+@app.route('/editar/<int:id>', methods=['GET','POST'])
 def editar(id):
     if request.method == 'POST':
-        texto = request.form['tarefa']
-        data_conc = request.form.get('data_conclusao')
+        texto  = request.form['tarefa']
+        data_c = request.form.get('data_conclusao')
         data_fmt = ''
-        if data_conc:
+        if data_c:
             try:
-                data_fmt = datetime.strptime(data_conc, '%Y-%m-%d').strftime('%d/%m/%Y')
+                data_fmt = datetime.strptime(data_c, '%Y-%m-%d').strftime('%d/%m/%Y')
             except ValueError:
                 pass
-
         conn = conectar()
-        cursor = conn.cursor()
-        cursor.execute(
+        cur  = conn.cursor()
+        cur.execute(
             'UPDATE tarefas SET texto = %s, data_conclusao = %s WHERE id = %s',
             (texto, data_fmt, id)
         )
         conn.commit()
         conn.close()
         return redirect('/')
-
+    # GET
     conn = conectar()
-    cursor = conn.cursor()
-    cursor.execute(
-        'SELECT id, texto, feito, data_criacao, data_conclusao, favorito FROM tarefas WHERE id = %s',
+    cur  = conn.cursor()
+    cur.execute(
+        'SELECT id, texto, feito, data_criacao, data_conclusao, favorito '
+        'FROM tarefas WHERE id = %s',
         (id,)
     )
-    row = cursor.fetchone()
+    row = cur.fetchone()
     conn.close()
-
     if not row:
         return 'Tarefa não encontrada', 404
-
     tarefa = {
-        'id': row[0],
-        'texto': row[1],
-        'feito': row[2],
+        'id':           row[0],
+        'texto':        row[1],
+        'feito':        row[2],
         'data_criacao': row[3],
         'data_conclusao': row[4],
-        'favorito': row[5]
+        'favorito':     row[5]
     }
     return render_template('editar.html', tarefa=tarefa)
 
-if __name__ == "__main__":
-    import os
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
