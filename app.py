@@ -169,5 +169,8 @@ def editar(id):
     }
     return render_template('editar.html', tarefa=tarefa)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    import os
+    criar_tabelas()  # se ainda precisar criar as tabelas
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
