@@ -5,22 +5,24 @@ import psycopg2
 import bcrypt
 
 app = Flask(__name__)
-# Usa SECRET_KEY do env, ou fallback para desenvolvimento
 app.secret_key = os.environ.get('SECRET_KEY', 'super_secret_key')
 app.permanent_session_lifetime = timedelta(days=7)
+
 
 def conectar():
     database_url = os.environ.get('DATABASE_URL')
     if database_url:
-        # Conecta ao Postgres no Render com SSL
+        # conecta ao Postgres remoto com SSL
         return psycopg2.connect(database_url, sslmode='require')
-    # Fallback para dev local
+    # fallback local
     dsn = "dbname=tarefas_local user=postgres password=admin host=localhost port=5432"
     return psycopg2.connect(dsn)
 
-def criar_tabelas():
+
+def criar_tabelas_e_seed():
     conn = conectar()
     cur = conn.cursor()
+    # cria tabelas
     cur.execute("""
         CREATE TABLE IF NOT EXISTS usuarios (
             id SERIAL PRIMARY KEY,
@@ -28,7 +30,7 @@ def criar_tabelas():
             username TEXT UNIQUE,
             senha TEXT
         );
-    """ )
+    """)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS tarefas (
             id SERIAL PRIMARY KEY,
@@ -38,12 +40,22 @@ def criar_tabelas():
             data_criacao TEXT,
             data_conclusao TEXT
         );
-    """ )
+    """)
+    # seed do usuário "eder"
+    cur.execute("SELECT 1 FROM usuarios WHERE username = %s", ('eder',))
+    if not cur.fetchone():
+        senha_raw = 'Leticia021021'
+        senha_hash = bcrypt.hashpw(senha_raw.encode(), bcrypt.gensalt()).decode()
+        cur.execute(
+            "INSERT INTO usuarios (nome, username, senha) VALUES (%s, %s, %s)",
+            ('Eder', 'eder', senha_hash)
+        )
     conn.commit()
     conn.close()
 
-# Cria as tabelas antes de atender qualquer requisição
-criar_tabelas()
+# roda tudo antes do primeiro request
+criar_tabelas_e_seed()
+
 
 def buscar_tarefas():
     conn = conectar()
@@ -56,17 +68,18 @@ def buscar_tarefas():
     conn.close()
     return [
         {
-            'id':           r[0],
-            'texto':        r[1],
-            'feito':        r[2],
-            'data_criacao': r[3],
+            'id':             r[0],
+            'texto':          r[1],
+            'feito':          r[2],
+            'data_criacao':   r[3],
             'data_conclusao': r[4],
-            'favorito':     r[5]
+            'favorito':       r[5]
         }
         for r in rows
     ]
 
-@app.route('/login', methods=['GET','POST'])
+
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     erro = None
     if request.method == 'POST':
@@ -81,17 +94,19 @@ def login():
         row = cur.fetchone()
         conn.close()
         if row and bcrypt.checkpw(senha.encode(), row[2].encode()):
-            session['logado'] = True
-            session['usuario_id'] = row[0]
-            session['nome'] = row[1]
+            session['logado']      = True
+            session['usuario_id']  = row[0]
+            session['nome']        = row[1]
             return redirect('/')
         erro = 'Usuário ou senha inválidos'
     return render_template('login.html', erro=erro)
+
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/login')
+
 
 @app.route('/')
 def index():
@@ -99,6 +114,7 @@ def index():
         return redirect('/login')
     tarefas = buscar_tarefas()
     return render_template('index.html', tarefas=tarefas, nome=session.get('nome'))
+
 
 @app.route('/adicionar', methods=['POST'])
 def adicionar():
@@ -123,6 +139,7 @@ def adicionar():
     conn.close()
     return redirect('/')
 
+
 @app.route('/concluir/<int:id>')
 def concluir(id):
     conn = conectar()
@@ -131,6 +148,7 @@ def concluir(id):
     conn.commit()
     conn.close()
     return redirect('/')
+
 
 @app.route('/favoritar/<int:id>')
 def favoritar(id):
@@ -141,6 +159,7 @@ def favoritar(id):
     conn.close()
     return redirect('/')
 
+
 @app.route('/remover/<int:id>')
 def remover(id):
     conn = conectar()
@@ -150,7 +169,8 @@ def remover(id):
     conn.close()
     return redirect('/')
 
-@app.route('/editar/<int:id>', methods=['GET','POST'])
+
+@app.route('/editar/<int:id>', methods=['GET', 'POST'])
 def editar(id):
     if request.method == 'POST':
         texto  = request.form['tarefa']
@@ -190,6 +210,7 @@ def editar(id):
         'favorito':      row[5]
     }
     return render_template('editar.html', tarefa=tarefa)
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
