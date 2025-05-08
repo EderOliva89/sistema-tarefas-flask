@@ -5,13 +5,16 @@ import psycopg2
 import bcrypt
 
 app = Flask(__name__)
-app.secret_key = 'super_secret_key'
+# Usa SECRET_KEY do env, ou fallback para desenvolvimento
+app.secret_key = os.environ.get('SECRET_KEY', 'super_secret_key')
 app.permanent_session_lifetime = timedelta(days=7)
 
 def conectar():
     database_url = os.environ.get('DATABASE_URL')
     if database_url:
-        return psycopg2.connect(f'{database_url}?sslmode=require')
+        # Conecta ao Postgres no Render com SSL
+        return psycopg2.connect(database_url, sslmode='require')
+    # Fallback para dev local
     dsn = "dbname=tarefas_local user=postgres password=admin host=localhost port=5432"
     return psycopg2.connect(dsn)
 
@@ -25,7 +28,7 @@ def criar_tabelas():
             username TEXT UNIQUE,
             senha TEXT
         );
-    """)
+    """ )
     cur.execute("""
         CREATE TABLE IF NOT EXISTS tarefas (
             id SERIAL PRIMARY KEY,
@@ -35,11 +38,11 @@ def criar_tabelas():
             data_criacao TEXT,
             data_conclusao TEXT
         );
-    """)
+    """ )
     conn.commit()
     conn.close()
 
-# Cria as tabelas antes de qualquer requisição
+# Cria as tabelas antes de atender qualquer requisição
 criar_tabelas()
 
 def buscar_tarefas():
@@ -167,7 +170,6 @@ def editar(id):
         conn.commit()
         conn.close()
         return redirect('/')
-    # GET
     conn = conectar()
     cur  = conn.cursor()
     cur.execute(
@@ -180,12 +182,12 @@ def editar(id):
     if not row:
         return 'Tarefa não encontrada', 404
     tarefa = {
-        'id':           row[0],
-        'texto':        row[1],
-        'feito':        row[2],
-        'data_criacao': row[3],
-        'data_conclusao': row[4],
-        'favorito':     row[5]
+        'id':            row[0],
+        'texto':         row[1],
+        'feito':         row[2],
+        'data_criacao':  row[3],
+        'data_conclusao':row[4],
+        'favorito':      row[5]
     }
     return render_template('editar.html', tarefa=tarefa)
 
